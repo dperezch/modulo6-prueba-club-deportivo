@@ -26,7 +26,7 @@ fs.readdir(".", (err, data) => {
   }
 });
 
-//Función para crear deporte
+//Función para crear/agregar deporte
 const crearDeporte = (ruta, objeto) => {
   fs.writeFile(ruta, JSON.stringify(objeto), (err, data) => {
     if (err) {
@@ -38,6 +38,27 @@ const crearDeporte = (ruta, objeto) => {
 };
 
 //Función para editar deporte
+const editarEliminar = (ruta, nombre, objeto) => {
+  fs.readFile(ruta, "utf-8", (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      const deportes = JSON.parse(data);
+      const indice = deportes.deportes.findIndex((element) => {
+        return element.nombre === nombre;
+      });
+      if (indice !== -1) {
+        if (objeto) {
+          deportes.deportes.splice(indice, 1, objeto);
+          crearDeporte(ruta, deportes);
+        } else {
+          deportes.deportes.splice(indice, 1);
+          crearDeporte(ruta, deportes);
+        }
+      }
+    }
+  });
+};
 
 //1. Crear una ruta que reciba el nombre y precio de un nuevo deporte, lo persista en un archivo JSON (3 Puntos).
 app.get("/agregar", (req, res) => {
@@ -72,23 +93,9 @@ app.use("/deportes", express.static(__dirname + "/deportes/deportes.json"));
 app.get("/editar", (req, res) => {
   const { nombre, precio } = req.query;
   const deporte = { nombre, precio };
-  console.log("deportes desde edit: ", deporte);
   const path = "deportes/deportes.json";
-  fs.readFile(path, "utf-8", (err, data) => {
-    const deportes = JSON.parse(data);
-    const indice = deportes.deportes.findIndex((element) => {
-      return element.nombre === deporte.nombre;
-    });
-    console.log("el indice es: ", indice);
-    if (indice !== -1) {
-      console.log(deporte);
-      console.log("deportes actual: ", deportes);
-      deportes.deportes.splice(indice, 1, deporte);
-      console.log("deportes despues del splice: ", deportes.deportes);
-      crearDeporte(path, deportes);
-      res.send("Deporte editado");
-    }
-  });
+  editarEliminar(path, nombre, deporte);
+  res.send("Deporte editado");
 });
 
 //4. Crear una ruta que elimine un deporte solicitado desde el cliente y persista este
@@ -96,20 +103,6 @@ app.get("/editar", (req, res) => {
 app.get("/eliminar", (req, res) => {
   const { nombre } = req.query;
   const path = "deportes/deportes.json";
-  console.log(nombre);
-  fs.readFile(path, "utf-8", (err, data) => {
-    const deportes = JSON.parse(data);
-    const indice = deportes.deportes.findIndex((element) => {
-      return element.nombre === nombre;
-    });
-    console.log("el indice es: ", indice);
-    if (indice !== -1) {
-      //console.log(deporte);
-      console.log("deportes actual: ", deportes);
-      deportes.deportes.splice(indice, 1);
-      console.log("deportes despues del splice: ", deportes.deportes);
-      crearDeporte(path, deportes);
-      res.send("Deporte eliminado");
-    }
-  });
+  editarEliminar(path, nombre);
+  res.send("Deporte eliminado");
 });
