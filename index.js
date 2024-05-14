@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
 
 //Función para crear carpeta deportes (si es que no existe) que alojará el archivo JSON
 fs.readdir(".", (err, data) => {
-  console.log(data);
+  //console.log(data);
   if (data.includes("deportes")) {
     console.log("carpeta deportes ya existe");
   } else {
@@ -69,18 +69,47 @@ app.use("/deportes", express.static(__dirname + "/deportes/deportes.json"));
 
 //3. Crear una ruta que edite el precio de un deporte registrado utilizando los parámetros
 //de la consulta y persista este cambio (2 Puntos).
-/* app.get("/editar", (req, res) => {
+app.get("/editar", (req, res) => {
   const { nombre, precio } = req.query;
   const deporte = { nombre, precio };
+  console.log("deportes desde edit: ", deporte);
   const path = "deportes/deportes.json";
   fs.readFile(path, "utf-8", (err, data) => {
     const deportes = JSON.parse(data);
-    const indice = deportes.findIndex((deporte) => {
-      deporte.nombre == nombre && deporte.precio == precio;
+    const indice = deportes.deportes.findIndex((element) => {
+      return element.nombre === deporte.nombre;
     });
     console.log("el indice es: ", indice);
-    const deportesEditado = deportes.deportes.splice(indice, 1, deporte);
-    //splice(index,1,nuevovalor)
-    crearDeporte(path, deportesEditado);
+    if (indice !== -1) {
+      console.log(deporte);
+      console.log("deportes actual: ", deportes);
+      deportes.deportes.splice(indice, 1, deporte);
+      console.log("deportes despues del splice: ", deportes.deportes);
+      crearDeporte(path, deportes);
+      res.send("Deporte editado");
+    }
   });
-}); */
+});
+
+//4. Crear una ruta que elimine un deporte solicitado desde el cliente y persista este
+//cambio (3 Puntos).
+app.get("/eliminar", (req, res) => {
+  const { nombre } = req.query;
+  const path = "deportes/deportes.json";
+  console.log(nombre);
+  fs.readFile(path, "utf-8", (err, data) => {
+    const deportes = JSON.parse(data);
+    const indice = deportes.deportes.findIndex((element) => {
+      return element.nombre === nombre;
+    });
+    console.log("el indice es: ", indice);
+    if (indice !== -1) {
+      //console.log(deporte);
+      console.log("deportes actual: ", deportes);
+      deportes.deportes.splice(indice, 1);
+      console.log("deportes despues del splice: ", deportes.deportes);
+      crearDeporte(path, deportes);
+      res.send("Deporte eliminado");
+    }
+  });
+});
