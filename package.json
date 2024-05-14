@@ -1,0 +1,14 @@
+{
+  "name": "prueba-club-deportivo",
+  "version": "1.0.0",
+  "description": "Prueba Módulo 6 - Club Deportivo",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx nodemon index.js"
+  },
+  "author": "David Pérez",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
